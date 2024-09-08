@@ -4,7 +4,8 @@
 Blazor .Net 8.0</br>
 Clean Architecture</br>
 Entity Framework</br>
-Entity Framework Identity</br>
+Entity Framework Identity
+</br>
 
 ![BLAZORIMS1](https://github.com/user-attachments/assets/a7bc06ce-919e-4a5e-bf90-f4452b2b3d50)
 

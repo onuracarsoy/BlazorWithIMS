@@ -1,0 +1,108 @@
+﻿@page "/productreport"
+@using IMS.UseCases.Reports.Interfaces
+@inject IJSRuntime JSRuntime
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject ISearchProductTransactionUseCase searchProductTransactionsUseCase
+
+
+    <div class="row">
+        <div class="col">
+            <label for="pr"> Ürün Adı </label>
+            <input type="text" id="pr" class="form-control" @bind-value="productName" />
+        </div>
+        <div class="col">
+            <label for="df"> Başlangış Tarih </label>
+            <input type="date" id="df" class="form-control" @bind-value="dateFrom" />
+        </div>
+        <div class="col">
+            <label for="dt"> Bitiş Tarihi </label>
+            <input type="date" id="dt" class="form-control" @bind-value="dateTo" />
+        </div>
+        <div class="col">
+            <label for="at"> Faaliyet Türü </label>
+            <select id="at" class="form-control" @bind="activityTypeId">
+                <option value="0">  </option>
+                <option value="1"> Ürün Üretimi</option>
+                <option value="2"> Ürün Satışı </option>
+            </select>
+        </div>
+
+        <div class="col">
+            <br />
+            <button type="button" class="btn btn-primary form-control" @onclick="SearchProduct"> Ara</button>
+        </div>
+        <div class="col">
+            <br />
+            <button type="button" class="btn btn-primary form-control" @onclick="Print">Yazdır</button>
+        </div>
+    </div>
+<div id="printarea">
+    <hr />
+    <div>
+        @if (productTransactions != null && productTransactions.Count() > 0)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Stok</th>
+                        <th>Faaliyet</th>
+                        <th>İlk Miktar</th>
+                        <th>Son Miktar</th>
+                        <th>Birim Fiyatı</th>
+                        <th>Üretim No#</th>
+                        <th>Satış No#</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var it in productTransactions)
+                    {
+                        <tr>
+                            <td>@it.TransactionDate.ToString("dd/MM/yyyy")</td>
+                            <td>@it.Product.ProductName</td>
+                            <td>
+                                @if (it.ActivityType == ProductTransactionType.ProduceProduct)
+                                {
+                                    <text>Üretim</text>
+                                }
+                                else if (it.ActivityType == ProductTransactionType.SellProduct)
+                                {
+                                    <text>Satış</text>
+                                }
+                            </td>
+                            <td>@it.QuantityBefore</td>
+                            <td>@it.QuantityAfter</td>
+                            <td>@it.UnitPrice?.ToString("c")</td>
+                            <td>@it.ProductionNumber</td>
+                            <td>@it.SONumber</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+@code {
+
+    private string? productName;
+    private DateTime? dateFrom;
+    private DateTime? dateTo;
+    private int? activityTypeId;
+    private IEnumerable<ProductTransaction>? productTransactions;
+
+    private async Task SearchProduct()
+    {
+        ProductTransactionType? prodType = null;
+        if (activityTypeId != 0 && activityTypeId != null)
+        {
+            prodType = (ProductTransactionType)activityTypeId;
+        }
+
+        productTransactions = await searchProductTransactionsUseCase.ExecuteAsync(productName, dateFrom, dateTo, prodType);
+    }
+    private async Task Print()
+    {
+        await JSRuntime.InvokeVoidAsync("print");
+    }
+}

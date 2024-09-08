@@ -1,0 +1,104 @@
+﻿@page "/sell"
+@attribute [Authorize(Policy ="Sales")]
+
+@using static IMS.WebApp.Components.Controls.Common.AutoCompleteComponent
+@rendermode InteractiveServer
+@inject IJSRuntime jsRuntime
+@inject IViewProductsByNameUseCase viewProductsByNameUseCase
+@inject IViewProductByIdUseCase viewProductByIdUseCase
+@inject ISellProductUseCase sellProductUseCase
+@inject AuthenticationStateProvider authenticationStateProvider
+
+<EditForm id="sell-form" Model="sellViewModel" OnValidSubmit="Sell">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="po">Satış Yapma No</label>
+        <InputText id="po" @bind-Value="sellViewModel.SalesOrderNumber" class="form-control" />
+        <ValidationMessage For="@(() => sellViewModel.SalesOrderNumber)" />
+    </div>
+    <br />
+    <div class="card">
+        <div class="card-body">
+            <div class="form-group">
+                <AutoCompleteComponent Label="Satılacak Ürün" SearchFunction="SearchProduct" OnItemSelected="HandleItemSelected" />
+
+                <ValidationMessage For="@(() => sellViewModel.ProductId)" />
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="qty">Adet</label>
+        <InputNumber id="qty" @bind-Value="sellViewModel.QuantityToSell" class="form-control" />
+        <ValidationMessage For="@(() => sellViewModel.QuantityToSell)" />
+    </div>
+    <div class="form-group">
+        <label for="price">Fiyat</label>
+        <InputNumber id="price" @bind-Value="sellViewModel.UnitPrice" class="form-control" />
+        <ValidationMessage For="@(() => sellViewModel.UnitPrice)" />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-success">Tamamla</button>
+    <a href="/products" class="btn btn-danger">İptal</a>
+
+</EditForm>
+@code {
+
+    private SellViewModel sellViewModel = new SellViewModel();
+    private Product? selectedProduct;
+    private AuthenticationState? authState;
+
+    protected override async Task OnInitializedAsync()
+    {
+        authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (firstRender)
+        {
+            jsRuntime.InvokeVoidAsync("preventFormSubmission", "sell-form");
+        }
+    }
+    private async Task<List<ItemViewModel>>? SearchProduct(string name)
+    {
+        var list = await viewProductsByNameUseCase.ExecuteAsync(name);
+        if (list is null)
+        {
+            return null;
+        }
+        return list.Select(x => new ItemViewModel { Id = x.ProductId, Name = x.ProductName })?.ToList();
+    }
+
+    private async void HandleItemSelected(ItemViewModel item)
+    {
+        selectedProduct = await viewProductByIdUseCase.ExecuteAsync(item.Id);
+
+        sellViewModel.ProductId = item.Id;
+        sellViewModel.Product = selectedProduct;
+        sellViewModel.UnitPrice = selectedProduct.ProductPrice;
+
+    }
+
+    private async Task Sell()
+    {
+
+        string userName = string.Empty;
+
+        if (authState?.User?.Identity?.IsAuthenticated ?? false)
+        {
+            userName = authState.User.Identity.Name ?? string.Empty;
+        }
+
+        if (selectedProduct is not null)
+        {
+            await sellProductUseCase.ExecuteAsync(sellViewModel.SalesOrderNumber, selectedProduct, sellViewModel.QuantityToSell, sellViewModel.UnitPrice, userName);
+
+        }
+
+        sellViewModel = new SellViewModel();
+        selectedProduct = null;
+    }
+}

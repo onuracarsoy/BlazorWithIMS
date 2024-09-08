@@ -1,0 +1,108 @@
+﻿@page "/inventoryreport"
+@using IMS.UseCases.Reports.Interfaces
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+@inject ISearchInventoryTransactionsUseCase searchInventoryTransactionsUseCase
+@attribute [Authorize]
+
+    <div class="row">
+        <div class="col">
+            <label for="inv"> Stok Adı </label>
+            <input type="text" id="inv" class="form-control" @bind-value="invName" />
+        </div>
+        <div class="col">
+            <label for="df"> Başlangış Tarih </label>
+            <input type="date" id="df" class="form-control" @bind-value="dateFrom" />
+        </div>
+        <div class="col">
+            <label for="dt"> Bitiş Tarihi </label>
+            <input type="date" id="dt" class="form-control" @bind-value="dateTo" />
+        </div>
+        <div class="col">
+            <label for="at"> Faaliyet Türü </label>
+            <select id="at" class="form-control" @bind="activityTypeId">
+                <option value="0" >  </option>
+                <option value="1"> Stok Satın Alma </option>
+                <option value="2"> Stok Tüketimi </option>
+            </select>
+        </div>
+        <div class="col">
+            <br />
+            <button type="button" class="btn btn-primary form-control" @onclick="SearchInventories"> Ara</button>
+        </div>
+        <div class="col">
+            <br />
+            <button type="button" class="btn btn-primary form-control" @onclick="Print">Yazdır</button>
+        </div>
+    </div>
+    <hr />
+<div id="printarea">
+    <div>
+        @if (inventoryTransactions != null && inventoryTransactions.Count() > 0)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Stok</th>
+                        <th>Faaliyet</th>
+                        <th>İlk Miktar</th>
+                        <th>Son Miktar</th>
+                        <th>Birim Fiyat</th>
+                        <th>Satın Alma No#</th>
+                        <th>Tüketim No#</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var it in inventoryTransactions)
+                    {
+                        <tr>
+                            <td>@it.TransactionDate.ToString("dd/MM/yyyy")</td>
+                            <td>@it.Inventory.InventoryName</td>
+                            <td>
+                                @if (it.ActivityType == InventoryTransactionType.PurchaseInventory)
+                                {
+                                    <text>Satın Alma</text>
+                                }
+                                else if (it.ActivityType == InventoryTransactionType.ProduceProduct)
+                                {
+                                    <text>Tüketim</text>
+                                }
+                            </td>
+                            <td>@it.QuantityBefore</td>
+                            <td>@it.QuantityAfter</td>
+                            <td>@it.UnitPrice.ToString("c")</td>
+                            <td>@it.PoNumber</td>
+                            <td>@it.ProductionNumber</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+@code {
+
+    private string? invName;
+    private DateTime? dateFrom;
+    private DateTime? dateTo;
+    private int? activityTypeId;
+    private IEnumerable<InventoryTransaction>? inventoryTransactions;
+
+    private async Task SearchInventories()
+    {
+        InventoryTransactionType? invType = null;
+
+        if (activityTypeId != 0 && activityTypeId != null)
+        {
+            invType = (InventoryTransactionType)activityTypeId;
+        }
+
+        inventoryTransactions = await searchInventoryTransactionsUseCase.ExecuteAsync(invName, dateFrom, dateTo, invType);
+    }
+
+    private async Task Print()
+    {
+       await JSRuntime.InvokeVoidAsync("print");
+    }
+}

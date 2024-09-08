@@ -1,0 +1,66 @@
+﻿@page "/editproduct/{prId:int}"
+@attribute [Authorize]
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IEditProductUseCase editProductUseCase
+@inject IViewProductByIdUseCase viewProductByIdUseCase
+@attribute [Authorize(Policy = "Productions")]
+
+
+
+    <EditForm Model="product" OnValidSubmit="Update">
+        <DataAnnotationsValidator />
+
+        <InputNumber @bind-Value="prId" hidden />
+
+        <div class="form-group">
+            <label for="name">Ad</label>
+            <InputText id="name" class="form-control" @bind-Value="product.ProductName" />
+            <ValidationMessage For="@(() => product.ProductName)" />
+        </div>
+        <div class="form-group">
+            <label for="quantity">Miktar</label>
+            <InputNumber id="quantity" class="form-control" @bind-Value="product.ProductQuantity" />
+            <ValidationMessage For="@(() => product.ProductQuantity)" />
+        </div>
+        <div class="form-group">
+            <label for="price">Fiyat</label>
+            <InputNumber id="price" class="form-control" @bind-Value="product.ProductPrice" />
+            <ValidationMessage For="@(() => product.ProductPrice)" />
+        </div>
+        <div class="form-group">
+            <label for="price">Stoklar</label>
+            <ProductInventoriesComponent Product="product" />
+        </div>
+        <br />
+        <button type="submit" class="btn btn-warning">Düzenle</button>
+        <a href="/products" class="btn btn-danger">İptal</a>
+
+    </EditForm>
+
+
+@code {
+    [Parameter]
+    public int prId { get; set; }
+
+    private Product? product { get; set; } = new Product();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        product = await viewProductByIdUseCase.ExecuteAsync(prId);
+    }
+
+ 
+
+
+    private async Task Update()
+    {
+        if(product is not null)
+        {
+       
+            await editProductUseCase.ExecuteAsync(product);
+            NavigationManager.NavigateTo("/products");
+        }
+ 
+    }
+}

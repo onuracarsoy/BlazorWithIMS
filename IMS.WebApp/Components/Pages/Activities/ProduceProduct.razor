@@ -1,0 +1,101 @@
+﻿@page "/produce"
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize(Policy = "Productions")]
+
+
+@rendermode InteractiveServer
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IJSRuntime jsRuntime    
+@inject IViewProductsByNameUseCase viewProductsByNameUseCase
+@inject IViewProductByIdUseCase viewProductByIdUseCase
+@inject IProduceProductUseCase produceProductUseCase
+@using static IMS.WebApp.Components.Controls.Common.AutoCompleteComponent
+<EditForm id ="produce-form" Model="produceViewModel" OnValidSubmit="Produce">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="po">Üretim No</label>
+        <InputText id="po" @bind-Value="produceViewModel.ProductionNumber" class="form-control" />
+        <ValidationMessage For="@(() => produceViewModel.ProductionNumber)" />
+    </div>
+    <br />
+    <div class="card">
+        <div class="card-body">
+            <div class="form-group">
+                <AutoCompleteComponent Label="Üretilecek Ürün" SearchFunction="SearchProduct" OnItemSelected="HandleItemSelected" />
+               
+                <ValidationMessage For="@(() => produceViewModel.ProductId)" />
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="qty">Adet</label>
+        <InputNumber id="qty" @bind-Value="produceViewModel.QuantityToProduce" class="form-control" />
+        <ValidationMessage For="@(() => produceViewModel.QuantityToProduce)" />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-success">Tamamla</button>
+    <a href="/products" class="btn btn-danger">İptal</a>
+
+</EditForm>
+@code {
+
+    private ProduceViewModel produceViewModel = new ProduceViewModel();
+    private Product? selectedProduct;
+
+    private AuthenticationState? authState;
+
+    protected override async Task OnInitializedAsync()
+    {
+        authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+    }
+
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (firstRender)
+        {
+            jsRuntime.InvokeVoidAsync("preventFormSubmission", "produce-form");
+        }
+    }
+    private async Task <List<ItemViewModel>>? SearchProduct(string name)
+    {
+        var list = await viewProductsByNameUseCase.ExecuteAsync(name);
+        if (list is null)
+        {
+            return null;
+        }
+        return list.Select(x => new ItemViewModel { Id = x.ProductId, Name = x.ProductName })?.ToList();
+    }
+
+    private async void HandleItemSelected(ItemViewModel item)
+    {
+        selectedProduct = await viewProductByIdUseCase.ExecuteAsync(item.Id);
+
+        produceViewModel.ProductId = item.Id;
+        produceViewModel.Product = selectedProduct;
+       
+    }
+
+    private async Task Produce()
+    {
+        string userName = string.Empty;
+
+       if( authState?.User?.Identity?.IsAuthenticated ??  false)
+        {
+            userName = authState.User.Identity.Name ?? string.Empty;
+        }
+
+        if (selectedProduct is not null)
+        {
+            await produceProductUseCase.ExecuteAsync(produceViewModel.ProductionNumber, selectedProduct, produceViewModel.QuantityToProduce, userName);
+
+        }
+
+        produceViewModel = new ProduceViewModel();
+        selectedProduct = null;
+    }
+}

@@ -1,0 +1,83 @@
+﻿@page "/editinventory/{invId:int}"
+@inject IViewInventoryByIdUseCase viewInventoryByIdUseCase
+@inject IEditInventoryUseCase editInventoryUseCase
+@inject NavigationManager NavigationManager
+@attribute [Authorize(Policy = "Inventory")]
+
+
+@if (inventory is not null)
+{
+    <EditForm Enhance="true" Model="inventory" FormName="formEditInventory" OnValidSubmit="Update">
+        <DataAnnotationsValidator />
+ 
+
+        <InputNumber  @bind-Value="inventory.InventoryId" hidden/>
+
+        <div class="form-group">
+            <label for="name">Ad</label>
+            <InputText id="name" class="form-control" @bind-Value="inventory.InventoryName" />
+            <ValidationMessage For="@(() => inventory.InventoryName)" />
+        </div>
+        <div class="form-group">
+            <label for="quantity">Miktar</label>
+            <InputNumber id="quantity" class="form-control" @bind-Value="inventory.InventoryQuantity" />
+            <ValidationMessage For="@(() => inventory.InventoryQuantity)" />
+        </div>
+        <div class="form-group">
+            <label for="price">Fiyat</label>
+            <InputNumber id="price" class="form-control" @bind-Value="inventory.InventoryPrice" />
+            <ValidationMessage For="@(() => inventory.InventoryPrice)" />
+        </div>
+        <br />
+        <button type="submit" class="btn btn-warning">Düzenle</button>
+        <a href="/inventories" class="btn btn-danger">İptal</a>
+
+    </EditForm>
+}
+
+
+
+
+@code {
+
+    [Parameter]
+    public int invId { get; set; }
+
+    [SupplyParameterFromForm]
+    private InventoryViewModel? inventory { get; set; }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if(inventory is null)
+        {
+            var inv = await viewInventoryByIdUseCase.ExecuteAsync(invId);
+            inventory = new InventoryViewModel
+            {
+                InventoryId = inv.InventoryId,
+                InventoryName = inv.InventoryName,
+                InventoryPrice = inv.InventoryPrice,
+                InventoryQuantity = inv.InventoryQuantity
+            };
+        }
+
+
+    }
+
+    public async Task Update()
+    {
+        if(inventory is not null)
+        {
+            var inv = new Inventory
+            {
+                InventoryId = inventory.InventoryId,
+                InventoryName = inventory.InventoryName,
+                InventoryPrice = inventory.InventoryPrice,
+                InventoryQuantity = inventory.InventoryQuantity
+            };
+
+            await editInventoryUseCase.ExecuteAsync(inv);
+            NavigationManager.NavigateTo("/inventories");
+        }
+       
+    }
+}

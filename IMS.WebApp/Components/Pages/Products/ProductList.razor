@@ -1,0 +1,21 @@
+﻿@page "/products"
+@attribute [Authorize(Policy = "Productions")]
+
+
+<SearchComponent OnSearch="HandleSearch"/>
+
+
+<ProductListComponent searchProductFilter="@ProductNameToSearch" />
+<br />
+
+
+<a href="/addProduct" class="btn btn-primary">Ekle</a>
+
+@code {
+    private string? ProductNameToSearch;
+
+    private void HandleSearch(string searchFilter)
+    {
+        ProductNameToSearch = searchFilter;
+    }
+}

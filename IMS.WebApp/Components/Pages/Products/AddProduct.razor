@@ -1,0 +1,44 @@
+﻿@page "/addProduct"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@attribute [Authorize(Policy = "Productions")]
+
+@inject IAddProductUseCase addProductUseCase
+<EditForm Model="product" OnValidSubmit="Save">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Ad</label>
+        <InputText id="name" class="form-control" @bind-Value="product.ProductName" />
+        <ValidationMessage For="@(() => product.ProductName)" />
+    </div>
+    <div class="form-group">
+        <label for="quantity">Miktar</label>
+        <InputNumber id="quantity" class="form-control" @bind-Value="product.ProductQuantity" />
+        <ValidationMessage For="@(() => product.ProductQuantity)" />
+    </div>
+    <div class="form-group">
+        <label for="price">Fiyat</label>
+        <InputNumber id="price" class="form-control" @bind-Value="product.ProductPrice" />
+        <ValidationMessage For="@(() => product.ProductPrice)" />
+    </div>
+
+    <div class="form-group">
+        <label for="price">Stoklar</label>
+    <ProductInventoriesComponent Product="product"/>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-success">Kaydet</button>
+    <a href="/products" class="btn btn-danger">İptal</a>
+
+</EditForm>
+@code {
+ 
+    private Product product { get; set; } = new Product();
+
+    private async Task Save()
+    {
+        await addProductUseCase.ExecuteAsync(product);
+        NavigationManager.NavigateTo("/products");
+    }
+}

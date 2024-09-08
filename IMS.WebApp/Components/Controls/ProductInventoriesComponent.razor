@@ -1,0 +1,62 @@
+﻿<div class="card">
+    <div class="card-body">
+        <SearchProductInventoriesComponent OnInventorySelected="HandleInventorySelected" />
+
+        @if (Product is not null && Product.ProductInventories is not null && Product.ProductInventories.Count > 0)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Ad</th>
+                        <th>Miktar</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Product.ProductInventories)
+                    {
+                        <tr>
+                            <td>@item.Inventory?.InventoryName</td>
+                            <td><input type="number" min="0" @bind-value="item.InventoryQuantity" /> </td>
+                            <td>
+                                <button type="button" class="btn btn-link text-danger" @onclick="() => RemoveInventory(item)">Kaldır</button>
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+        }
+    </div>
+</div>
+
+
+
+
+
+
+
+@code {
+
+    [Parameter]
+    public Product? Product { get; set; }
+
+    public double TotalCost { get; set; } = 0;
+
+    private void RemoveInventory(ProductInventory productInventory)
+    {
+        if(Product is not null && Product.ProductInventories is not null){
+            Product.RemoveInventory(productInventory);
+      
+        }
+        
+    }
+
+    private void HandleInventorySelected(Inventory inventory)
+    {
+        Product?.AddInventory(inventory);
+      
+    }
+}

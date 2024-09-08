@@ -1,0 +1,32 @@
+﻿@inject IDeleteInventoryUseCase deleteInventoryUseCase
+@inject NavigationManager navigationManager
+@if (item is not null)
+{
+    <tr>
+
+        <td>@item.InventoryName</td>
+        <td>@item.InventoryQuantity</td>
+        <td>@item.InventoryPrice.ToString("c")</td>
+        <td>
+            <a href="/editinventory/@item.InventoryId" class="btn btn-warning">Düzenle</a>
+        
+        </td>
+        <td>
+            <EditForm Enhance="true" Model="item" FormName="@("form-delete-inventory-"+item.InventoryId)" OnValidSubmit="@(()=>DeleteInventory(item.InventoryId))">
+                <button type="submit" class="btn btn-danger">Sil</button>
+            </EditForm>
+        </td>
+    </tr>
+}
+
+@code {
+
+    [Parameter]
+    public Inventory? item { get; set; }
+
+    public async Task DeleteInventory(int inventoryId)
+    {
+        await deleteInventoryUseCase.ExecuteAsync(inventoryId);
+        navigationManager.NavigateTo("/inventories");
+    }
+}

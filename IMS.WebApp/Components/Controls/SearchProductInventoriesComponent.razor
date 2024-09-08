@@ -1,0 +1,56 @@
+﻿@inject IViewInventoriesByNameUseCase viewInventoriesByNameUseCase
+
+
+<div class="input-group">
+    <input class="form-control" placeholder="Aramak istediğiniz kelimeyi giriniz..." @bind-value="searchFilter" @bind-value:event="oninput"  />
+    <button type="button" class="btn btn-success input-group-text" @onclick="HandleSearch">Ara</button>
+</div>
+@if (inventories is not null && inventories.Count > 0)
+{
+    <div class="search-result">
+        <ul>
+            @foreach (var item in inventories)
+            {
+                <li @key="item.InventoryId" @onclick="()=> HandleSelectInventory(item)">
+                    @item.InventoryName
+                </li>
+            }
+        </ul>
+    </div>
+
+
+}
+
+
+@code {
+    [Parameter]
+    public EventCallback<Inventory> OnInventorySelected { get; set; }
+
+    private string _searchFilter = string.Empty;
+
+    private  string searchFilter
+    {
+        get => _searchFilter;  set
+        {
+            _searchFilter = value;
+            HandleSearch();
+        }
+    }
+    private List<Inventory> inventories = new List<Inventory>();
+
+    private async Task HandleSearch()
+    {
+        await Task.Delay(500);
+        inventories = (await viewInventoriesByNameUseCase.ExecuteAsync(searchFilter)).ToList();
+
+        StateHasChanged();
+    }
+
+    private async Task HandleSelectInventory(Inventory inventory)
+    {
+      
+      await OnInventorySelected.InvokeAsync(inventory);
+      inventories.Clear();
+    }
+  
+}

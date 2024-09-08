@@ -1,0 +1,21 @@
+﻿@page "/inventories"
+@attribute [Authorize(Policy = "Inventory")]
+
+
+<SearchComponent OnSearch="HandleSearch"/>
+
+
+<InventoryListComponent searchInventoryFilter="@inventoryNameToSearch" />
+<br />
+
+
+<a href="/addinventory" class="btn btn-primary">Ekle</a>
+
+@code {
+    private string? inventoryNameToSearch;
+
+    private void HandleSearch(string searchFilter)
+    {
+        inventoryNameToSearch = searchFilter;
+    }
+}

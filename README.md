@@ -1,20 +1,47 @@
-📌 Project Overview
+📌 Proje Özeti 
 
-In this project, I implemented the Blazor Server interactive render mode, which is based on SignalR WebSockets. For component organization, I followed the per-page/component approach, which is one of the most widely adopted practices.
+BlazorWithIMS, öğrenme ve demo amaçlı geliştirilmiş bir Blazor Server tabanlı interaktif yönetim sistemidir (IMS).
+Proje, CRUD işlemleri, komponent bazlı mimari ve Entity Framework ile veri kalıcılığı entegrasyonunu göstermektedir.
 
-During development, I initially built in-memory test repositories to validate CRUD operations quickly. Later, I migrated these repositories to Entity Framework, ensuring a more scalable and production-ready structure.
+✨ Özellikler
 
-By applying Clean Architecture, the project gained a more maintainable and sustainable foundation. Additionally, I integrated Entity Framework Identity to handle authentication and authorization, enabling secure and seamless user management.
+• Komponent bazlı yapı (sayfa/komponent bazlı)
 
-🛠️ Technologies
+• Blazor Server (SignalR WebSockets) ile interaktif arayüz
 
-Blazor Server Interactive (.NET 8.0)
+• Farklı varlıklar için CRUD işlemleri
 
-Clean Architecture
+• Veri kalıcılığı için Entity Framework entegrasyonu
 
-Entity Framework Core
+• Bakımı kolay bir yapı için Clean Architecture kullanımı
 
-Entity Framework Identity
+• Authentication ve Authorization için Identity entegrasyonu
+
+🛠️ Kullanılan Teknolojiler
+
+• Blazor Server (.NET 8.0)
+
+• Clean Architecture
+
+• Entity Framework Core
+
+• Entity Framework Identity
+
+🚀 Çalıştırma
+
+1. Repoyu klonla:
+
+git clone https://github.com/onuracarsoy/BlazorWithIMS.git
+cd BlazorWithIMS
+
+
+2. Çözümü Visual Studio ile aç
+
+3. NuGet paketlerini geri yükle
+
+4. Veritabanı bağlantısını yapılandır (gerekirse)
+
+5. Projeyi çalıştır (F5)
 
 ![BLAZORIMS1](https://github.com/user-attachments/assets/a7bc06ce-919e-4a5e-bf90-f4452b2b3d50)
 

@@ -1,12 +1,20 @@
-<h4>Projede, Blazor da üç ana interaktif etkileşim türünden SignalR WebSocket tabanlı olanı yani Server render mode olanı kullandım, kullanırken de lokasyon olarak en çok tercih edilen  yaklaşım olan Per page/component kullandım ve her şeyden önce projeyi geliştirirken CRUD işlemlerini ilk olarak test edebilmem amacı ile memory test repositoryleri yazdım daha sonra ise bu yapıları Entity Framework'e taşıdım. Ayrıca, Clean Architecture sayesinde daha sürdürülebilir bir yapıya sahip oldu. Entity Framework Identity ile entegrasyon yaparakta kullanıcıların authentication ve authorize işlemlerini daha güvenli ve kolay bir şekilde yapabilmelerini sağlamak istedim.
-</h4>
+📌 Project Overview
 
-<h3>Kullanılan Teknojiler;</h3>
-Blazor Server Inveractive .Net 8.0</br>
-Clean Architecture</br>
-Entity Framework</br>
+In this project, I implemented the Blazor Server interactive render mode, which is based on SignalR WebSockets. For component organization, I followed the per-page/component approach, which is one of the most widely adopted practices.
+
+During development, I initially built in-memory test repositories to validate CRUD operations quickly. Later, I migrated these repositories to Entity Framework, ensuring a more scalable and production-ready structure.
+
+By applying Clean Architecture, the project gained a more maintainable and sustainable foundation. Additionally, I integrated Entity Framework Identity to handle authentication and authorization, enabling secure and seamless user management.
+
+🛠️ Technologies
+
+Blazor Server Interactive (.NET 8.0)
+
+Clean Architecture
+
+Entity Framework Core
+
 Entity Framework Identity
-</br>
 
 ![BLAZORIMS1](https://github.com/user-attachments/assets/a7bc06ce-919e-4a5e-bf90-f4452b2b3d50)
 
